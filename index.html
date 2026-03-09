@@ -63,6 +63,8 @@
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     @media (max-width: 768px) { .sidebar { display: none; } }
+    .fixed-footer { background: var(--surface); border-top: 1px solid var(--border); transition: background 0.3s, border-color 0.3s; }
+    body { padding-bottom: 52px; }
   </style>
 </head>
 <body>
@@ -1111,5 +1113,20 @@ setTimeout(() => {
   document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
 }, 100);
 </script>
+
+<!-- FIXED FOOTER -->
+<footer class="fixed-footer fixed bottom-0 left-0 right-0 z-50 px-6 py-3 flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <div class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-black text-white flex-shrink-0" style="background:var(--accent)">G</div>
+    <span class="font-bold text-sm" style="color:var(--accent)">InteractiveGit</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="text-xs text-muted">Built by</span>
+    <span class="font-semibold text-sm" style="color:var(--text)">Raghottam V Kalkeri</span>
+    <span class="text-xs text-muted hidden sm:inline">· All Git commands reference</span>
+  </div>
+  <div class="text-xs text-muted mono hidden md:block" id="footerYear"></div>
+</footer>
+<script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
 </html>
