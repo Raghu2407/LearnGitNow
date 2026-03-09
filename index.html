@@ -33,8 +33,8 @@
       --tag-bg: #3A2010;
       --tag-text: #FF8C42;
     }
-    * { font-family: 'Outfit', sans-serif; }
-    body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+    * { font-family: 'Outfit', sans-serif; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; padding-bottom: 52px; }
     .surface { background: var(--surface); border: 1px solid var(--border); }
     .surface2 { background: var(--surface2); }
     .text-muted { color: var(--text2); }
@@ -48,58 +48,101 @@
     .cmd-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(232,93,4,0.1); }
     .sidebar-link { color: var(--text2); transition: all 0.15s; }
     .sidebar-link:hover, .sidebar-link.active { color: var(--accent); font-weight: 600; }
-    .copy-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); transition: all 0.2s; cursor: pointer; }
+    .copy-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); transition: all 0.2s; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
     .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
     .copy-btn.copied { background: #16a34a; color: white; border-color: #16a34a; }
-    .lang-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .lang-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); max-width: 110px; }
     .header-bar { background: var(--surface); border-bottom: 1px solid var(--border); }
     .category-badge { background: var(--tag-bg); color: var(--tag-text); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; }
-    .search-box { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .search-box { background: var(--surface); border: 1px solid var(--border); color: var(--text); width: 100%; }
     .search-box::placeholder { color: var(--text2); }
-    .toggle-btn { background: var(--surface2); border: 1px solid var(--border); }
+    .toggle-btn { background: var(--surface2); border: 1px solid var(--border); flex-shrink: 0; }
     .section-title { border-bottom: 2px solid var(--accent); }
     .pill { background: var(--surface2); border: 1px solid var(--border); }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    @media (max-width: 768px) { .sidebar { display: none; } }
+
+    /* Sidebar — desktop/tablet */
+    .sidebar { display: none; }
+    @media (min-width: 1024px) {
+      .sidebar { display: block; width: 220px; flex-shrink: 0; }
+    }
+
+    /* Code blocks — no overflow on mobile */
+    .code-block code, .code-wrap { word-break: break-all; overflow-wrap: anywhere; }
+
+    /* Mobile category drawer */
+    .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90; }
+    .drawer-overlay.open { display: block; }
+    .cat-drawer {
+      position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+      background: var(--surface); border-right: 1px solid var(--border);
+      z-index: 100; transform: translateX(-100%); transition: transform 0.25s ease;
+      overflow-y: auto; padding: 1rem;
+    }
+    .cat-drawer.open { transform: translateX(0); }
+
+    /* Fixed footer */
     .fixed-footer { background: var(--surface); border-top: 1px solid var(--border); transition: background 0.3s, border-color 0.3s; }
-    body { padding-bottom: 52px; }
+
+    /* Tablet tweaks */
+    @media (max-width: 640px) {
+      .cmd-card { padding: 14px; }
+      .section-header-wrap { flex-wrap: wrap; gap: 6px; }
+    }
   </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header class="header-bar sticky top-0 z-50 px-4 py-3 flex items-center justify-between gap-3">
-  <div class="flex items-center gap-3">
-    <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xl font-black text-white" style="background:var(--accent)">G</div>
-    <div>
-      <h1 class="text-lg font-800 font-bold leading-tight" id="siteTitle">Git Commands Reference</h1>
-      <p class="text-xs text-muted" id="siteSubtitle">All commands, explained with examples</p>
+<header class="header-bar sticky top-0 z-50">
+  <!-- Row 1: Logo + Controls -->
+  <div class="px-4 py-3 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2 min-w-0">
+      <!-- Mobile menu button -->
+      <button id="menuBtn" class="toggle-btn rounded-lg px-2 py-2 text-base lg:hidden" title="Browse categories">☰</button>
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center text-base font-black text-white flex-shrink-0" style="background:var(--accent)">G</div>
+      <div class="min-w-0">
+        <h1 class="text-base font-bold leading-tight truncate" id="siteTitle">Git Commands Reference</h1>
+        <p class="text-xs text-muted hidden sm:block" id="siteSubtitle">All commands, explained with examples</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <!-- Language Selector -->
+      <select id="langSelect" class="lang-select rounded-lg px-2 py-2 text-xs font-semibold outline-none cursor-pointer">
+        <option value="en">🌐 EN</option>
+        <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+        <option value="hi">🇮🇳 हिंदी</option>
+      </select>
+      <!-- Dark Mode -->
+      <button id="themeToggle" class="toggle-btn rounded-lg px-2 py-2 text-base transition-all" title="Toggle theme">☀️</button>
     </div>
   </div>
-  <div class="flex items-center gap-2">
-    <!-- Search -->
-    <input id="searchBox" type="text" class="search-box rounded-lg px-3 py-2 text-sm w-40 md:w-60 outline-none focus:border-orange-400" placeholder="Search commands..." />
-    <!-- Language Selector -->
-    <select id="langSelect" class="lang-select rounded-lg px-3 py-2 text-sm font-semibold outline-none cursor-pointer">
-      <option value="en">🌐 English</option>
-      <option value="kn">🇮🇳 ಕನ್ನಡ</option>
-      <option value="hi">🇮🇳 हिंदी</option>
-    </select>
-    <!-- Dark Mode -->
-    <button id="themeToggle" class="toggle-btn rounded-lg px-3 py-2 text-lg transition-all" title="Toggle theme">☀️</button>
+  <!-- Row 2: Search (full width on mobile) -->
+  <div class="px-4 pb-3">
+    <input id="searchBox" type="text" class="search-box rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400" placeholder="Search commands..." style="display:block;width:100%;" />
   </div>
 </header>
 
+<!-- MOBILE CATEGORY DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="cat-drawer" id="catDrawer">
+  <div class="flex items-center justify-between mb-4">
+    <span class="font-bold text-sm" style="color:var(--accent)">Categories</span>
+    <button id="drawerClose" class="toggle-btn rounded-lg px-2 py-1 text-sm">✕</button>
+  </div>
+  <nav id="drawerNav" class="space-y-1"></nav>
+</div>
+
 <div class="flex min-h-screen">
-  <!-- SIDEBAR -->
-  <aside class="sidebar w-56 sticky top-14 h-screen overflow-y-auto p-4 border-r border-style flex-shrink-0" style="border-color:var(--border)">
+  <!-- SIDEBAR — desktop only -->
+  <aside class="sidebar sticky top-28 h-screen overflow-y-auto p-4 border-r flex-shrink-0" style="border-color:var(--border)">
     <nav id="sidebarNav" class="space-y-1"></nav>
   </aside>
 
   <!-- MAIN CONTENT -->
-  <main class="flex-1 px-4 md:px-8 py-8 max-w-4xl">
+  <main class="flex-1 px-3 sm:px-5 md:px-8 py-6 min-w-0">
     <div id="commandSections"></div>
   </main>
 </div>
@@ -983,14 +1026,18 @@ function copyToClipboard(code, btn) {
 }
 
 function renderSidebar() {
-  const nav = document.getElementById('sidebarNav');
-  nav.innerHTML = categories.map(cat => `
-    <a href="#${cat.id}" class="sidebar-link flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm">
+  const linksHtml = categories.map(cat => `
+    <a href="#${cat.id}" class="sidebar-link flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm nav-link">
       <span>${cat.icon}</span>
       <span>${cat.label[currentLang]}</span>
       <span class="ml-auto text-xs opacity-50">${cat.commands.length}</span>
     </a>
   `).join('');
+  document.getElementById('sidebarNav').innerHTML = linksHtml;
+  document.getElementById('drawerNav').innerHTML = linksHtml;
+  document.querySelectorAll('#drawerNav .nav-link').forEach(link => {
+    link.addEventListener('click', closeDrawer);
+  });
 }
 
 function renderSections(filter = '') {
@@ -1078,6 +1125,21 @@ function updateUI() {
   renderSections(document.getElementById('searchBox').value);
 }
 
+// ─── DRAWER ───────────────────────────────────────────────────────────────────
+function openDrawer() {
+  document.getElementById('catDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('catDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('menuBtn').addEventListener('click', openDrawer);
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+
 // ─── EVENTS ───────────────────────────────────────────────────────────────────
 document.getElementById('langSelect').addEventListener('change', e => {
   currentLang = e.target.value;
@@ -1115,17 +1177,16 @@ setTimeout(() => {
 </script>
 
 <!-- FIXED FOOTER -->
-<footer class="fixed-footer fixed bottom-0 left-0 right-0 z-50 px-6 py-3 flex items-center justify-between">
-  <div class="flex items-center gap-2">
-    <div class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-black text-white flex-shrink-0" style="background:var(--accent)">G</div>
+<footer class="fixed-footer fixed bottom-0 left-0 right-0 z-50 px-4 py-2 flex items-center justify-between gap-2">
+  <div class="flex items-center gap-1.5 flex-shrink-0">
+    <div class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-black text-white" style="background:var(--accent)">G</div>
     <span class="font-bold text-sm" style="color:var(--accent)">InteractiveGit</span>
   </div>
-  <div class="flex items-center gap-2">
-    <span class="text-xs text-muted">Built by</span>
-    <span class="font-semibold text-sm" style="color:var(--text)">Raghottam V Kalkeri</span>
-    <span class="text-xs text-muted hidden sm:inline">· All Git commands reference</span>
+  <div class="flex items-center gap-1 min-w-0 justify-center flex-1">
+    <span class="text-xs text-muted hidden xs:inline">Built by</span>
+    <span class="font-semibold text-xs sm:text-sm truncate" style="color:var(--text)">Raghottam V Kalkeri</span>
   </div>
-  <div class="text-xs text-muted mono hidden md:block" id="footerYear"></div>
+  <div class="text-xs text-muted mono hidden sm:block flex-shrink-0" id="footerYear"></div>
 </footer>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
