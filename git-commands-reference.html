@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Git Commands Reference | ಗಿಟ್ ಆದೇಶಗಳು | Git संदर्भ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFDF8;
+      --surface: #FFFFFF;
+      --surface2: #F5F2EA;
+      --border: #E8E0D0;
+      --text: #1C1A16;
+      --text2: #5C5648;
+      --accent: #E85D04;
+      --accent2: #FF8C42;
+      --code-bg: #F0EDE6;
+      --tag-bg: #FFF0E6;
+      --tag-text: #C44A00;
+    }
+    .dark {
+      --bg: #141210;
+      --surface: #1E1B17;
+      --surface2: #252119;
+      --border: #3A342C;
+      --text: #F5F0E8;
+      --text2: #A09880;
+      --accent: #FF6B35;
+      --accent2: #FFB347;
+      --code-bg: #2A251E;
+      --tag-bg: #3A2010;
+      --tag-text: #FF8C42;
+    }
+    * { font-family: 'Outfit', sans-serif; }
+    body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+    .surface { background: var(--surface); border: 1px solid var(--border); }
+    .surface2 { background: var(--surface2); }
+    .text-muted { color: var(--text2); }
+    .accent { color: var(--accent); }
+    .accent-bg { background: var(--accent); }
+    .tag-style { background: var(--tag-bg); color: var(--tag-text); }
+    .border-style { border-color: var(--border); }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+    .code-block { background: var(--code-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; }
+    .cmd-card { background: var(--surface); border: 1px solid var(--border); transition: all 0.2s; }
+    .cmd-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(232,93,4,0.1); }
+    .sidebar-link { color: var(--text2); transition: all 0.15s; }
+    .sidebar-link:hover, .sidebar-link.active { color: var(--accent); font-weight: 600; }
+    .copy-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); transition: all 0.2s; cursor: pointer; }
+    .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+    .copy-btn.copied { background: #16a34a; color: white; border-color: #16a34a; }
+    .lang-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .header-bar { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .category-badge { background: var(--tag-bg); color: var(--tag-text); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; }
+    .search-box { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .search-box::placeholder { color: var(--text2); }
+    .toggle-btn { background: var(--surface2); border: 1px solid var(--border); }
+    .section-title { border-bottom: 2px solid var(--accent); }
+    .pill { background: var(--surface2); border: 1px solid var(--border); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    @media (max-width: 768px) { .sidebar { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header-bar sticky top-0 z-50 px-4 py-3 flex items-center justify-between gap-3">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xl font-black text-white" style="background:var(--accent)">G</div>
+    <div>
+      <h1 class="text-lg font-800 font-bold leading-tight" id="siteTitle">Git Commands Reference</h1>
+      <p class="text-xs text-muted" id="siteSubtitle">All commands, explained with examples</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <!-- Search -->
+    <input id="searchBox" type="text" class="search-box rounded-lg px-3 py-2 text-sm w-40 md:w-60 outline-none focus:border-orange-400" placeholder="Search commands..." />
+    <!-- Language Selector -->
+    <select id="langSelect" class="lang-select rounded-lg px-3 py-2 text-sm font-semibold outline-none cursor-pointer">
+      <option value="en">🌐 English</option>
+      <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+      <option value="hi">🇮🇳 हिंदी</option>
+    </select>
+    <!-- Dark Mode -->
+    <button id="themeToggle" class="toggle-btn rounded-lg px-3 py-2 text-lg transition-all" title="Toggle theme">☀️</button>
+  </div>
+</header>
+
+<div class="flex min-h-screen">
+  <!-- SIDEBAR -->
+  <aside class="sidebar w-56 sticky top-14 h-screen overflow-y-auto p-4 border-r border-style flex-shrink-0" style="border-color:var(--border)">
+    <nav id="sidebarNav" class="space-y-1"></nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 px-4 md:px-8 py-8 max-w-4xl">
+    <div id="commandSections"></div>
+  </main>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const UI = {
+  en: {
+    title: "Git Commands Reference",
+    subtitle: "All commands, explained with examples",
+    search: "Search commands...",
+    copy: "Copy",
+    copied: "Copied!",
+    example: "Example",
+    syntax: "Syntax",
+    note: "Note",
+    commands: "commands"
+  },
+  kn: {
+    title: "Git ಆದೇಶ ಮಾರ್ಗದರ್ಶಿ",
+    subtitle: "ಎಲ್ಲಾ ಆದೇಶಗಳು, ಉದಾಹರಣೆಗಳೊಂದಿಗೆ ವಿವರಿಸಲಾಗಿದೆ",
+    search: "ಆದೇಶಗಳನ್ನು ಹುಡುಕಿ...",
+    copy: "ನಕಲಿಸಿ",
+    copied: "ನಕಲಿಸಲಾಗಿದೆ!",
+    example: "ಉದಾಹರಣೆ",
+    syntax: "ವಾಕ್ಯ ರಚನೆ",
+    note: "ಟಿಪ್ಪಣಿ",
+    commands: "ಆದೇಶಗಳು"
+  },
+  hi: {
+    title: "Git कमांड संदर्भ",
+    subtitle: "सभी कमांड, उदाहरणों के साथ समझाए गए",
+    search: "कमांड खोजें...",
+    copy: "कॉपी करें",
+    copied: "कॉपी हो गया!",
+    example: "उदाहरण",
+    syntax: "सिंटैक्स",
+    note: "नोट",
+    commands: "कमांड"
+  }
+};
+
+const categories = [
+  {
+    id: "setup",
+    icon: "⚙️",
+    label: { en: "Setup & Config", kn: "ಸ್ಥಾಪನೆ ಮತ್ತು ಸಂರಚನೆ", hi: "सेटअप और कॉन्फिग" },
+    commands: [
+      {
+        cmd: "git config --global user.name",
+        syntax: 'git config --global user.name "Your Name"',
+        desc: {
+          en: "Sets your name globally for all Git commits on this machine.",
+          kn: "ಈ ಯಂತ್ರದ ಎಲ್ಲಾ Git ಕಮಿಟ್‌ಗಳಿಗಾಗಿ ನಿಮ್ಮ ಹೆಸರನ್ನು ಜಾಗತಿಕವಾಗಿ ಹೊಂದಿಸುತ್ತದೆ.",
+          hi: "इस मशीन के सभी Git commits के लिए आपका नाम globally सेट करता है।"
+        },
+        examples: [
+          { code: 'git config --global user.name "Raghottam"', note: { en: "Sets display name for all commits", kn: "ಎಲ್ಲಾ ಕಮಿಟ್‌ಗಳಿಗಾಗಿ ಪ್ರದರ್ಶನ ಹೆಸರನ್ನು ಹೊಂದಿಸುತ್ತದೆ", hi: "सभी commits के लिए नाम सेट करता है" } }
+        ]
+      },
+      {
+        cmd: "git config --global user.email",
+        syntax: 'git config --global user.email "you@email.com"',
+        desc: {
+          en: "Sets your email globally for all Git commits.",
+          kn: "ಎಲ್ಲಾ Git ಕಮಿಟ್‌ಗಳಿಗಾಗಿ ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ಜಾಗತಿಕವಾಗಿ ಹೊಂದಿಸುತ್ತದೆ.",
+          hi: "सभी Git commits के लिए आपका email globally सेट करता है।"
+        },
+        examples: [
+          { code: 'git config --global user.email "r@example.com"', note: { en: "Links email to commits for identification", kn: "ಗುರುತಿಸಲು ಇಮೇಲ್ ಅನ್ನು ಕಮಿಟ್‌ಗಳಿಗೆ ಲಿಂಕ್ ಮಾಡುತ್ತದೆ", hi: "पहचान के लिए email को commits से जोड़ता है" } }
+        ]
+      },
+      {
+        cmd: "git config --list",
+        syntax: "git config --list",
+        desc: {
+          en: "Lists all Git configuration settings currently active.",
+          kn: "ಪ್ರಸ್ತುತ ಸಕ್ರಿಯವಾಗಿರುವ ಎಲ್ಲಾ Git ಸಂರಚನಾ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡುತ್ತದೆ.",
+          hi: "वर्तमान में सक्रिय सभी Git configuration settings की सूची दिखाता है।"
+        },
+        examples: [
+          { code: "git config --list", note: { en: "Shows all active config values", kn: "ಎಲ್ಲಾ ಸಕ್ರಿಯ config ಮೌಲ್ಯಗಳನ್ನು ತೋರಿಸುತ್ತದೆ", hi: "सभी सक्रिय config मान दिखाता है" } },
+          { code: "git config --global --list", note: { en: "Shows only global config", kn: "ಕೇವಲ global config ತೋರಿಸುತ್ತದೆ", hi: "केवल global config दिखाता है" } }
+        ]
+      },
+      {
+        cmd: "git config --global core.editor",
+        syntax: 'git config --global core.editor "code --wait"',
+        desc: {
+          en: "Sets the default text editor Git uses for commit messages (e.g., VS Code, vim, nano).",
+          kn: "Commit ಸಂದೇಶಗಳಿಗಾಗಿ Git ಬಳಸುವ ಡಿಫಾಲ್ಟ್ ಟೆಕ್ಸ್ಟ್ ಎಡಿಟರ್ ಅನ್ನು ಹೊಂದಿಸುತ್ತದೆ.",
+          hi: "Commit messages के लिए Git का default editor सेट करता है (जैसे VS Code, vim)।"
+        },
+        examples: [
+          { code: 'git config --global core.editor "code --wait"', note: { en: "Sets VS Code as editor", kn: "VS Code ಅನ್ನು editor ಆಗಿ ಹೊಂದಿಸುತ್ತದೆ", hi: "VS Code को editor सेट करता है" } },
+          { code: 'git config --global core.editor "vim"', note: { en: "Sets vim as editor", kn: "vim ಅನ್ನು editor ಆಗಿ ಹೊಂದಿಸುತ್ತದೆ", hi: "vim को editor सेट करता है" } }
+        ]
+      },
+      {
+        cmd: "git config --global alias",
+        syntax: 'git config --global alias.<shortcut> "<command>"',
+        desc: {
+          en: "Creates a shortcut alias for a longer Git command to save typing time.",
+          kn: "ಟೈಪಿಂಗ್ ಸಮಯ ಉಳಿಸಲು ದೀರ್ಘ Git ಆದೇಶಕ್ಕೆ ಶಾರ್ಟ್‌ಕಟ್ alias ರಚಿಸುತ್ತದೆ.",
+          hi: "टाइपिंग समय बचाने के लिए लंबे Git command का shortcut alias बनाता है।"
+        },
+        examples: [
+          { code: 'git config --global alias.st "status"', note: { en: "Now 'git st' works as 'git status'", kn: "'git st' ಈಗ 'git status' ಆಗಿ ಕಾರ್ಯ ನಿರ್ವಹಿಸುತ್ತದೆ", hi: "अब 'git st' से 'git status' काम करेगा" } },
+          { code: 'git config --global alias.co "checkout"', note: { en: "'git co' = 'git checkout'", kn: "'git co' = 'git checkout'", hi: "'git co' = 'git checkout'" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "init-clone",
+    icon: "🗂️",
+    label: { en: "Init & Clone", kn: "ಆರಂಭ ಮತ್ತು ಕ್ಲೋನ್", hi: "Init और Clone" },
+    commands: [
+      {
+        cmd: "git init",
+        syntax: "git init [directory-name]",
+        desc: {
+          en: "Initializes a brand new Git repository in the current (or specified) folder.",
+          kn: "ಪ್ರಸ್ತುತ (ಅಥವಾ ನಿರ್ದಿಷ್ಟ) ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ಹೊಸ Git repository ಅನ್ನು ಪ್ರಾರಂಭಿಸುತ್ತದೆ.",
+          hi: "वर्तमान (या निर्दिष्ट) फोल्डर में एक नई Git repository शुरू करता है।"
+        },
+        examples: [
+          { code: "git init", note: { en: "Creates .git folder in current directory", kn: "ಪ್ರಸ್ತುತ ಡೈರೆಕ್ಟರಿಯಲ್ಲಿ .git ಫೋಲ್ಡರ್ ರಚಿಸುತ್ತದೆ", hi: "वर्तमान directory में .git फोल्डर बनाता है" } },
+          { code: "git init my-project", note: { en: "Creates a new folder 'my-project' with Git initialized", kn: "'my-project' ಎಂಬ ಹೊಸ ಫೋಲ್ಡರ್ ರಚಿಸಿ Git ಪ್ರಾರಂಭಿಸುತ್ತದೆ", hi: "'my-project' नाम का नया फोल्डर बनाकर Git शुरू करता है" } }
+        ]
+      },
+      {
+        cmd: "git clone",
+        syntax: "git clone <url> [directory]",
+        desc: {
+          en: "Downloads an existing remote repository to your local machine.",
+          kn: "ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ರಿಮೋಟ್ repository ಅನ್ನು ನಿಮ್ಮ ಸ್ಥಳೀಯ ಯಂತ್ರಕ್ಕೆ ಡೌನ್‌ಲೋಡ್ ಮಾಡುತ್ತದೆ.",
+          hi: "किसी existing remote repository को आपकी local machine पर download करता है।"
+        },
+        examples: [
+          { code: "git clone https://github.com/user/repo.git", note: { en: "Clones into a folder named 'repo'", kn: "'repo' ಎಂಬ ಫೋಲ್ಡರ್‌ಗೆ clone ಮಾಡುತ್ತದೆ", hi: "'repo' नाम के फोल्डर में clone करता है" } },
+          { code: "git clone https://github.com/user/repo.git my-app", note: { en: "Clones into a custom folder name", kn: "ಕಸ್ಟಮ್ ಫೋಲ್ಡರ್ ಹೆಸರಿಗೆ clone ಮಾಡುತ್ತದೆ", hi: "custom फोल्डर नाम में clone करता है" } },
+          { code: "git clone --depth 1 https://github.com/user/repo.git", note: { en: "Shallow clone — only latest commit (faster)", kn: "Shallow clone — ಕೇವಲ ಇತ್ತೀಚಿನ commit (ವೇಗವಾಗಿ)", hi: "Shallow clone — केवल latest commit (तेज़)" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "staging",
+    icon: "📦",
+    label: { en: "Staging & Snapshots", kn: "ಸ್ಟೇಜಿಂಗ್ ಮತ್ತು ಸ್ನ್ಯಾಪ್‌ಶಾಟ್", hi: "Staging और Snapshots" },
+    commands: [
+      {
+        cmd: "git status",
+        syntax: "git status [-s]",
+        desc: {
+          en: "Shows which files are modified, staged, or untracked in your working directory.",
+          kn: "ನಿಮ್ಮ ವರ್ಕಿಂಗ್ ಡೈರೆಕ್ಟರಿಯಲ್ಲಿ ಯಾವ ಫೈಲ್‌ಗಳು ಮಾರ್ಪಡಿಸಲಾಗಿದೆ, ಸ್ಟೇಜ್ ಮಾಡಲಾಗಿದೆ ಅಥವಾ ಟ್ರ್ಯಾಕ್ ಮಾಡಿಲ್ಲ ಎಂದು ತೋರಿಸುತ್ತದೆ.",
+          hi: "दिखाता है कि आपकी working directory में कौन सी files modified, staged, या untracked हैं।"
+        },
+        examples: [
+          { code: "git status", note: { en: "Full status with details", kn: "ವಿವರಗಳೊಂದಿಗೆ ಸಂಪೂರ್ಣ ಸ್ಥಿತಿ", hi: "विवरण के साथ पूरी status" } },
+          { code: "git status -s", note: { en: "Short compact summary view", kn: "ಸಂಕ್ಷಿಪ್ತ ಸಾರಾಂಶ ವೀಕ್ಷಣೆ", hi: "छोटा compact summary view" } }
+        ]
+      },
+      {
+        cmd: "git add",
+        syntax: "git add <file | . | pattern>",
+        desc: {
+          en: "Stages changes (new files or modifications) to be included in the next commit.",
+          kn: "ಮುಂದಿನ commit ನಲ್ಲಿ ಸೇರಿಸಲು ಬದಲಾವಣೆಗಳನ್ನು (ಹೊಸ ಫೈಲ್‌ಗಳು ಅಥವಾ ಮಾರ್ಪಾಡುಗಳು) ಸ್ಟೇಜ್ ಮಾಡುತ್ತದೆ.",
+          hi: "अगले commit में शामिल करने के लिए changes (नई files या modifications) को stage करता है।"
+        },
+        examples: [
+          { code: "git add index.html", note: { en: "Stage a specific file", kn: "ನಿರ್ದಿಷ್ಟ ಫೈಲ್ ಸ್ಟೇಜ್ ಮಾಡಿ", hi: "एक specific file stage करें" } },
+          { code: "git add .", note: { en: "Stage ALL changes in current directory", kn: "ಪ್ರಸ್ತುತ ಡೈರೆಕ್ಟರಿಯಲ್ಲಿ ಎಲ್ಲಾ ಬದಲಾವಣೆಗಳನ್ನು ಸ್ಟೇಜ್ ಮಾಡಿ", hi: "current directory में सभी changes stage करें" } },
+          { code: "git add src/", note: { en: "Stage all files in a folder", kn: "ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ಎಲ್ಲಾ ಫೈಲ್‌ಗಳನ್ನು ಸ್ಟೇಜ್ ಮಾಡಿ", hi: "एक folder की सभी files stage करें" } },
+          { code: "git add *.js", note: { en: "Stage all .js files", kn: "ಎಲ್ಲಾ .js ಫೈಲ್‌ಗಳನ್ನು ಸ್ಟೇಜ್ ಮಾಡಿ", hi: "सभी .js files stage करें" } }
+        ]
+      },
+      {
+        cmd: "git add -p",
+        syntax: "git add -p [file]",
+        desc: {
+          en: "Interactively choose which parts (hunks) of a file to stage — perfect for partial commits.",
+          kn: "ಭಾಗಶಃ commit ಗಳಿಗೆ ಸೂಕ್ತ — ಫೈಲ್‌ನ ಯಾವ ಭಾಗಗಳನ್ನು (hunks) ಸ್ಟೇಜ್ ಮಾಡಬೇಕೆಂದು ಸಂವಾದಾತ್ಮಕವಾಗಿ ಆಯ್ಕೆ ಮಾಡಿ.",
+          hi: "Interactive रूप से चुनें कि file के कौन से हिस्से (hunks) stage करें — partial commits के लिए perfect।"
+        },
+        examples: [
+          { code: "git add -p", note: { en: "Review all changes chunk by chunk", kn: "ಎಲ್ಲಾ ಬದಲಾವಣೆಗಳನ್ನು chunk ಮೂಲಕ review ಮಾಡಿ", hi: "सभी changes को chunk by chunk review करें" } },
+          { code: "git add -p app.js", note: { en: "Partial stage for one file", kn: "ಒಂದು ಫೈಲ್‌ಗಾಗಿ ಭಾಗಶಃ stage", hi: "एक file का partial stage" } }
+        ]
+      },
+      {
+        cmd: "git diff",
+        syntax: "git diff [--staged] [file]",
+        desc: {
+          en: "Shows what has changed but not yet staged. Use --staged to see staged vs last commit.",
+          kn: "ಏನು ಬದಲಾಗಿದೆ ಆದರೆ ಇನ್ನೂ ಸ್ಟೇಜ್ ಮಾಡಿಲ್ಲ ಎಂದು ತೋರಿಸುತ್ತದೆ. ಸ್ಟೇಜ್ ಮಾಡಿದ vs ಕೊನೆಯ commit ನೋಡಲು --staged ಬಳಸಿ.",
+          hi: "दिखाता है क्या बदला लेकिन अभी stage नहीं हुआ। staged vs last commit देखने के लिए --staged उपयोग करें।"
+        },
+        examples: [
+          { code: "git diff", note: { en: "Unstaged changes vs last commit", kn: "Unstaged ಬದಲಾವಣೆಗಳು vs ಕೊನೆಯ commit", hi: "Unstaged changes बनाम last commit" } },
+          { code: "git diff --staged", note: { en: "Staged changes ready to commit", kn: "Commit ಗೆ ಸಿದ್ಧ staged ಬದಲಾವಣೆಗಳು", hi: "Staged changes जो commit के लिए तैयार हैं" } },
+          { code: "git diff HEAD", note: { en: "All changes since last commit", kn: "ಕೊನೆಯ commit ನಿಂದ ಎಲ್ಲಾ ಬದಲಾವಣೆಗಳು", hi: "last commit के बाद से सभी changes" } },
+          { code: "git diff main feature-branch", note: { en: "Compare two branches", kn: "ಎರಡು branches ಹೋಲಿಸಿ", hi: "दो branches की तुलना करें" } }
+        ]
+      },
+      {
+        cmd: "git commit",
+        syntax: 'git commit -m "message"',
+        desc: {
+          en: "Saves staged changes as a permanent snapshot in the repository history.",
+          kn: "Repository ಇತಿಹಾಸದಲ್ಲಿ ಸ್ಟೇಜ್ ಮಾಡಿದ ಬದಲಾವಣೆಗಳನ್ನು ಶಾಶ್ವತ ಸ್ನ್ಯಾಪ್‌ಶಾಟ್ ಆಗಿ ಉಳಿಸುತ್ತದೆ.",
+          hi: "Staged changes को repository history में permanent snapshot के रूप में save करता है।"
+        },
+        examples: [
+          { code: 'git commit -m "Add login page"', note: { en: "Commit with inline message", kn: "Inline ಸಂದೇಶದೊಂದಿಗೆ commit", hi: "Inline message के साथ commit" } },
+          { code: "git commit", note: { en: "Opens editor to write longer message", kn: "ದೀರ್ಘ ಸಂದೇಶ ಬರೆಯಲು ಎಡಿಟರ್ ತೆರೆಯುತ್ತದೆ", hi: "लंबा message लिखने के लिए editor खोलता है" } },
+          { code: 'git commit -am "Fix bug"', note: { en: "Stage + commit tracked files at once", kn: "Tracked ಫೈಲ್‌ಗಳನ್ನು ಒಂದೇ ಬಾರಿ stage + commit ಮಾಡಿ", hi: "Tracked files को एक साथ stage + commit करें" } }
+        ]
+      },
+      {
+        cmd: "git commit --amend",
+        syntax: 'git commit --amend [-m "new message"]',
+        desc: {
+          en: "Modifies the most recent commit — either its message or its staged content. CAUTION: avoid on pushed commits.",
+          kn: "ಇತ್ತೀಚಿನ commit ಅನ್ನು ಮಾರ್ಪಡಿಸುತ್ತದೆ — ಅದರ ಸಂದೇಶ ಅಥವಾ staged ವಿಷಯ. ಎಚ್ಚರಿಕೆ: push ಮಾಡಿದ commits ನಲ್ಲಿ ತಪ್ಪಿಸಿ.",
+          hi: "सबसे हाल के commit को modify करता है — उसका message या staged content। सावधान: pushed commits पर use न करें।"
+        },
+        examples: [
+          { code: 'git commit --amend -m "Correct message"', note: { en: "Change the last commit message", kn: "ಕೊನೆಯ commit ಸಂದೇಶ ಬದಲಾಯಿಸಿ", hi: "आखिरी commit का message बदलें" } },
+          { code: "git commit --amend --no-edit", note: { en: "Add staged changes to last commit without changing message", kn: "ಸಂದೇಶ ಬದಲಾಯಿಸದೆ ಕೊನೆಯ commit ಗೆ staged ಬದಲಾವಣೆಗಳನ್ನು ಸೇರಿಸಿ", hi: "message बदले बिना last commit में staged changes जोड़ें" } }
+        ]
+      },
+      {
+        cmd: "git rm",
+        syntax: "git rm <file>",
+        desc: {
+          en: "Removes a file from both the working directory and the Git staging area.",
+          kn: "ವರ್ಕಿಂಗ್ ಡೈರೆಕ್ಟರಿ ಮತ್ತು Git staging area ಎರಡರಿಂದಲೂ ಫೈಲ್ ತೆಗೆದುಹಾಕುತ್ತದೆ.",
+          hi: "Working directory और Git staging area दोनों से file हटाता है।"
+        },
+        examples: [
+          { code: "git rm old-file.txt", note: { en: "Delete file and stage the deletion", kn: "ಫೈಲ್ ಅಳಿಸಿ ಮತ್ತು deletion ಸ್ಟೇಜ್ ಮಾಡಿ", hi: "File delete करें और deletion stage करें" } },
+          { code: "git rm --cached file.txt", note: { en: "Remove from Git tracking only (keep file on disk)", kn: "Git ಟ್ರ್ಯಾಕಿಂಗ್‌ನಿಂದ ಮಾತ್ರ ತೆಗೆದುಹಾಕಿ (ಡಿಸ್ಕ್‌ನಲ್ಲಿ ಫೈಲ್ ಉಳಿಸಿ)", hi: "केवल Git tracking से हटाएं (disk पर file रखें)" } }
+        ]
+      },
+      {
+        cmd: "git mv",
+        syntax: "git mv <source> <destination>",
+        desc: {
+          en: "Renames or moves a file and stages the change for the next commit.",
+          kn: "ಫೈಲ್ ಅನ್ನು ಮರುನಾಮಕರಣ ಮಾಡುತ್ತದೆ ಅಥವಾ ಸ್ಥಳಾಂತರಿಸುತ್ತದೆ ಮತ್ತು ಮುಂದಿನ commit ಗಾಗಿ ಬದಲಾವಣೆಯನ್ನು ಸ್ಟೇಜ್ ಮಾಡುತ್ತದೆ.",
+          hi: "File का नाम बदलता या move करता है और अगले commit के लिए change stage करता है।"
+        },
+        examples: [
+          { code: "git mv old.txt new.txt", note: { en: "Rename a file (tracked by Git)", kn: "ಫೈಲ್ ಮರುನಾಮಕರಣ ಮಾಡಿ (Git ನಿಂದ ಟ್ರ್ಯಾಕ್ ಮಾಡಲ್ಪಟ್ಟಿದೆ)", hi: "File का नाम बदलें (Git द्वारा tracked)" } },
+          { code: "git mv utils.js src/utils.js", note: { en: "Move file to a subfolder", kn: "ಫೈಲ್ ಅನ್ನು subfolder ಗೆ ಸ್ಥಳಾಂತರಿಸಿ", hi: "File को subfolder में move करें" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "branching",
+    icon: "🌿",
+    label: { en: "Branching", kn: "ಶಾಖೆ ನಿರ್ವಹಣೆ", hi: "Branching" },
+    commands: [
+      {
+        cmd: "git branch",
+        syntax: "git branch [name] [-d | -D | -m | -r | -a]",
+        desc: {
+          en: "Lists, creates, renames, or deletes branches. Branches let you work on features in isolation.",
+          kn: "Branches ಅನ್ನು ಪಟ್ಟಿ ಮಾಡುತ್ತದೆ, ರಚಿಸುತ್ತದೆ, ಮರುನಾಮಕರಣ ಮಾಡುತ್ತದೆ ಅಥವಾ ಅಳಿಸುತ್ತದೆ. ಅವು ಪ್ರತ್ಯೇಕವಾಗಿ features ನಲ್ಲಿ ಕೆಲಸ ಮಾಡಲು ಅನುಮತಿಸುತ್ತದೆ.",
+          hi: "Branches list, create, rename, या delete करता है। Branches से आप features पर अलग-अलग काम कर सकते हैं।"
+        },
+        examples: [
+          { code: "git branch", note: { en: "List all local branches", kn: "ಎಲ್ಲಾ local branches ಪಟ್ಟಿ ಮಾಡಿ", hi: "सभी local branches list करें" } },
+          { code: "git branch -r", note: { en: "List remote branches", kn: "Remote branches ಪಟ್ಟಿ ಮಾಡಿ", hi: "Remote branches list करें" } },
+          { code: "git branch -a", note: { en: "List all (local + remote)", kn: "ಎಲ್ಲಾ (local + remote) ಪಟ್ಟಿ ಮಾಡಿ", hi: "सभी (local + remote) list करें" } },
+          { code: "git branch feature-login", note: { en: "Create a new branch", kn: "ಹೊಸ branch ರಚಿಸಿ", hi: "नई branch बनाएं" } },
+          { code: "git branch -d feature-login", note: { en: "Delete a merged branch", kn: "Merged branch ಅಳಿಸಿ", hi: "Merged branch delete करें" } },
+          { code: "git branch -D feature-login", note: { en: "Force delete any branch", kn: "ಯಾವುದೇ branch ಅನ್ನು ಬಲವಂತವಾಗಿ ಅಳಿಸಿ", hi: "किसी भी branch को force delete करें" } },
+          { code: "git branch -m old-name new-name", note: { en: "Rename a branch", kn: "Branch ಮರುನಾಮಕರಣ ಮಾಡಿ", hi: "Branch का नाम बदलें" } }
+        ]
+      },
+      {
+        cmd: "git checkout",
+        syntax: "git checkout <branch | commit | file>",
+        desc: {
+          en: "Switches to a branch or restores files. Also used to create new branches with -b flag.",
+          kn: "Branch ಗೆ ಬದಲಾಯಿಸುತ್ತದೆ ಅಥವಾ ಫೈಲ್‌ಗಳನ್ನು ಮರುಸ್ಥಾಪಿಸುತ್ತದೆ. -b ಫ್ಲ್ಯಾಗ್‌ನೊಂದಿಗೆ ಹೊಸ branches ರಚಿಸಲು ಸಹ ಬಳಸಲಾಗುತ್ತದೆ.",
+          hi: "Branch पर switch करता है या files restore करता है। -b flag के साथ नई branches बनाने के लिए भी उपयोग होता है।"
+        },
+        examples: [
+          { code: "git checkout main", note: { en: "Switch to the main branch", kn: "Main branch ಗೆ ಬದಲಿಸಿ", hi: "Main branch पर switch करें" } },
+          { code: "git checkout -b feature-x", note: { en: "Create and switch to new branch", kn: "ಹೊಸ branch ರಚಿಸಿ ಮತ್ತು ಅದಕ್ಕೆ ಬದಲಿಸಿ", hi: "नई branch बनाएं और switch करें" } },
+          { code: "git checkout -- index.html", note: { en: "Discard unstaged changes in a file", kn: "ಫೈಲ್‌ನಲ್ಲಿ unstaged ಬದಲಾವಣೆಗಳನ್ನು ತ್ಯಜಿಸಿ", hi: "File में unstaged changes discard करें" } },
+          { code: "git checkout abc1234", note: { en: "Detach HEAD to a specific commit", kn: "ನಿರ್ದಿಷ್ಟ commit ಗೆ HEAD detach ಮಾಡಿ", hi: "किसी specific commit पर HEAD detach करें" } }
+        ]
+      },
+      {
+        cmd: "git switch",
+        syntax: "git switch <branch> [-c new-branch]",
+        desc: {
+          en: "Modern replacement for 'git checkout' for branch switching — cleaner and more intuitive.",
+          kn: "Branch ಬದಲಾವಣೆಗಾಗಿ 'git checkout' ನ ಆಧುನಿಕ ಬದಲಿ — ಸ್ವಚ್ಛ ಮತ್ತು ಹೆಚ್ಚು ಅರ್ಥಗರ್ಭಿತ.",
+          hi: "Branch switching के लिए 'git checkout' का modern replacement — ज़्यादा साफ और intuitive।"
+        },
+        examples: [
+          { code: "git switch main", note: { en: "Switch to main branch", kn: "Main branch ಗೆ ಬದಲಿಸಿ", hi: "Main branch पर जाएं" } },
+          { code: "git switch -c new-feature", note: { en: "Create and switch to new branch", kn: "ಹೊಸ branch ರಚಿಸಿ ಮತ್ತು ಬದಲಿಸಿ", hi: "नई branch बनाएं और switch करें" } },
+          { code: "git switch -", note: { en: "Switch back to the previous branch", kn: "ಹಿಂದಿನ branch ಗೆ ಮರಳಿ ಬದಲಿಸಿ", hi: "पिछली branch पर वापस जाएं" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "merging",
+    icon: "🔀",
+    label: { en: "Merging & Rebasing", kn: "ಮರ್ಜ್ ಮತ್ತು ರಿಬೇಸ್", hi: "Merging और Rebasing" },
+    commands: [
+      {
+        cmd: "git merge",
+        syntax: "git merge <branch> [--no-ff | --squash | --abort]",
+        desc: {
+          en: "Combines changes from another branch into the current branch, preserving history.",
+          kn: "ಇನ್ನೊಂದು branch ನಿಂದ ಬದಲಾವಣೆಗಳನ್ನು ಪ್ರಸ್ತುತ branch ಗೆ ಒಟ್ಟುಗೂಡಿಸುತ್ತದೆ, ಇತಿಹಾಸ ಸಂರಕ್ಷಿಸುತ್ತದೆ.",
+          hi: "दूसरी branch के changes को current branch में combine करता है, history preserve करते हुए।"
+        },
+        examples: [
+          { code: "git merge feature-login", note: { en: "Merge feature branch into current", kn: "Feature branch ಅನ್ನು ಪ್ರಸ್ತುತ branch ಗೆ merge ಮಾಡಿ", hi: "Feature branch को current में merge करें" } },
+          { code: "git merge --no-ff feature-login", note: { en: "Force a merge commit (no fast-forward)", kn: "Merge commit ಬಲಪಡಿಸಿ (no fast-forward)", hi: "Merge commit force करें (no fast-forward)" } },
+          { code: "git merge --squash feature", note: { en: "Squash all commits into one before merging", kn: "Merge ಮಾಡುವ ಮೊದಲು ಎಲ್ಲಾ commits ಅನ್ನು ಒಂದಾಗಿ squash ಮಾಡಿ", hi: "Merge से पहले सभी commits को एक में squash करें" } },
+          { code: "git merge --abort", note: { en: "Cancel a merge in progress", kn: "ಪ್ರಗತಿಯಲ್ಲಿರುವ merge ರದ್ದುಗೊಳಿಸಿ", hi: "चल रही merge को रद्द करें" } }
+        ]
+      },
+      {
+        cmd: "git rebase",
+        syntax: "git rebase <branch> [-i]",
+        desc: {
+          en: "Reapplies commits on top of another branch, creating a linear history. Use -i for interactive rebase.",
+          kn: "ಮತ್ತೊಂದು branch ಮೇಲೆ commits ಅನ್ನು ಮರು-ಅನ್ವಯಿಸುತ್ತದೆ, ರೇಖೀಯ ಇತಿಹಾಸ ರಚಿಸುತ್ತದೆ. Interactive rebase ಗಾಗಿ -i ಬಳಸಿ.",
+          hi: "दूसरी branch के ऊपर commits को reapply करता है, linear history बनाता है। Interactive rebase के लिए -i उपयोग करें।"
+        },
+        examples: [
+          { code: "git rebase main", note: { en: "Rebase current branch onto main", kn: "ಪ್ರಸ್ತುತ branch ಅನ್ನು main ಮೇಲೆ rebase ಮಾಡಿ", hi: "Current branch को main पर rebase करें" } },
+          { code: "git rebase -i HEAD~3", note: { en: "Interactive: edit/squash last 3 commits", kn: "Interactive: ಕೊನೆಯ 3 commits ಸಂಪಾದಿಸಿ/squash ಮಾಡಿ", hi: "Interactive: आखिरी 3 commits edit/squash करें" } },
+          { code: "git rebase --continue", note: { en: "Continue after resolving conflicts", kn: "ಸಂಘರ್ಷಗಳನ್ನು ಪರಿಹರಿಸಿದ ನಂತರ ಮುಂದುವರಿಸಿ", hi: "Conflicts resolve करने के बाद continue करें" } },
+          { code: "git rebase --abort", note: { en: "Cancel the rebase operation", kn: "Rebase ಕಾರ್ಯಾಚರಣೆ ರದ್ದುಗೊಳಿಸಿ", hi: "Rebase operation रद्द करें" } }
+        ]
+      },
+      {
+        cmd: "git cherry-pick",
+        syntax: "git cherry-pick <commit-hash>",
+        desc: {
+          en: "Applies the changes from a specific commit to the current branch — pick any commit from anywhere.",
+          kn: "ನಿರ್ದಿಷ್ಟ commit ನಿಂದ ಬದಲಾವಣೆಗಳನ್ನು ಪ್ರಸ್ತುತ branch ಗೆ ಅನ್ವಯಿಸುತ್ತದೆ — ಎಲ್ಲಿಂದಲಾದರೂ ಯಾವುದೇ commit ಆಯ್ಕೆ ಮಾಡಿ.",
+          hi: "किसी specific commit के changes को current branch पर apply करता है — कहीं से भी कोई commit चुनें।"
+        },
+        examples: [
+          { code: "git cherry-pick abc1234", note: { en: "Apply one specific commit", kn: "ಒಂದು ನಿರ್ದಿಷ್ಟ commit ಅನ್ವಯಿಸಿ", hi: "एक specific commit apply करें" } },
+          { code: "git cherry-pick abc1234 def5678", note: { en: "Apply multiple specific commits", kn: "ಬಹು ನಿರ್ದಿಷ್ಟ commits ಅನ್ವಯಿಸಿ", hi: "Multiple specific commits apply करें" } },
+          { code: "git cherry-pick abc1234..def5678", note: { en: "Apply a range of commits", kn: "Commits ನ ವ್ಯಾಪ್ತಿಯನ್ನು ಅನ್ವಯಿಸಿ", hi: "Commits की range apply करें" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "stash",
+    icon: "🗄️",
+    label: { en: "Stash", kn: "ಸ್ಟ್ಯಾಶ್", hi: "Stash" },
+    commands: [
+      {
+        cmd: "git stash",
+        syntax: "git stash [push -m 'message']",
+        desc: {
+          en: "Temporarily saves your uncommitted changes so you can switch branches without committing. Like a clipboard for your work-in-progress.",
+          kn: "Commit ಮಾಡದ ಬದಲಾವಣೆಗಳನ್ನು ತಾತ್ಕಾಲಿಕವಾಗಿ ಉಳಿಸುತ್ತದೆ, ಆದ್ದರಿಂದ ಕಮಿಟ್ ಮಾಡದೆ branches ಬದಲಿಸಬಹುದು. ನಿಮ್ಮ ಕೆಲಸದ ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ನಂತೆ.",
+          hi: "Uncommitted changes को temporarily save करता है ताकि commit किए बिना branches switch कर सकें। आपके work-in-progress का clipboard।"
+        },
+        examples: [
+          { code: "git stash", note: { en: "Stash all uncommitted changes quickly", kn: "ಎಲ್ಲಾ uncommitted ಬದಲಾವಣೆಗಳನ್ನು ತ್ವರಿತವಾಗಿ stash ಮಾಡಿ", hi: "सभी uncommitted changes को जल्दी stash करें" } },
+          { code: 'git stash push -m "working on login"', note: { en: "Stash with a descriptive label", kn: "ವಿವರಣಾತ್ಮಕ ಲೇಬಲ್‌ನೊಂದಿಗೆ stash ಮಾಡಿ", hi: "Descriptive label के साथ stash करें" } },
+          { code: "git stash -u", note: { en: "Stash including untracked files", kn: "Untracked ಫೈಲ್‌ಗಳನ್ನು ಸೇರಿಸಿ stash ಮಾಡಿ", hi: "Untracked files सहित stash करें" } }
+        ]
+      },
+      {
+        cmd: "git stash list",
+        syntax: "git stash list",
+        desc: {
+          en: "Shows all your saved stashes in order, newest first.",
+          kn: "ನಿಮ್ಮ ಎಲ್ಲಾ ಉಳಿಸಿದ stashes ಅನ್ನು ಕ್ರಮದಲ್ಲಿ ತೋರಿಸುತ್ತದೆ, ಹೊಸದನ್ನು ಮೊದಲು.",
+          hi: "आपके सभी saved stashes को क्रम में दिखाता है, नवीनतम पहले।"
+        },
+        examples: [
+          { code: "git stash list", note: { en: "Shows stash@{0}, stash@{1}, etc.", kn: "stash@{0}, stash@{1} ಇತ್ಯಾದಿ ತೋರಿಸುತ್ತದೆ", hi: "stash@{0}, stash@{1} आदि दिखाता है" } }
+        ]
+      },
+      {
+        cmd: "git stash apply",
+        syntax: "git stash apply [stash@{n}]",
+        desc: {
+          en: "Applies stashed changes back without removing the stash from the list.",
+          kn: "Stash ಅನ್ನು ಪಟ್ಟಿಯಿಂದ ತೆಗೆಯದೆ stashed ಬದಲಾವಣೆಗಳನ್ನು ಮರಳಿ ಅನ್ವಯಿಸುತ್ತದೆ.",
+          hi: "Stash को list से हटाए बिना stashed changes वापस apply करता है।"
+        },
+        examples: [
+          { code: "git stash apply", note: { en: "Apply the latest stash", kn: "ಇತ್ತೀಚಿನ stash ಅನ್ವಯಿಸಿ", hi: "Latest stash apply करें" } },
+          { code: "git stash apply stash@{2}", note: { en: "Apply a specific stash by index", kn: "Index ಮೂಲಕ ನಿರ್ದಿಷ್ಟ stash ಅನ್ವಯಿಸಿ", hi: "Index से specific stash apply करें" } }
+        ]
+      },
+      {
+        cmd: "git stash pop",
+        syntax: "git stash pop [stash@{n}]",
+        desc: {
+          en: "Applies the stash AND removes it from the stash list — the most common way to restore stashed work.",
+          kn: "Stash ಅನ್ನು ಅನ್ವಯಿಸಿ ಮತ್ತು ಅದನ್ನು stash ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕುತ್ತದೆ — stashed ಕೆಲಸ ಮರಳಿ ಪಡೆಯಲು ಸಾಮಾನ್ಯ ವಿಧಾನ.",
+          hi: "Stash apply करता है और उसे stash list से हटाता है — stashed work restore करने का सबसे common तरीका।"
+        },
+        examples: [
+          { code: "git stash pop", note: { en: "Apply latest stash and remove it", kn: "ಇತ್ತೀಚಿನ stash ಅನ್ವಯಿಸಿ ಮತ್ತು ತೆಗೆದುಹಾಕಿ", hi: "Latest stash apply करें और हटाएं" } },
+          { code: "git stash pop stash@{1}", note: { en: "Pop a specific stash", kn: "ನಿರ್ದಿಷ್ಟ stash pop ಮಾಡಿ", hi: "Specific stash pop करें" } }
+        ]
+      },
+      {
+        cmd: "git stash show",
+        syntax: "git stash show [-p] [stash@{n}]",
+        desc: {
+          en: "Shows a summary of what's in a stash. Add -p for full diff.",
+          kn: "Stash ನಲ್ಲಿ ಏನಿದೆ ಎಂಬ ಸಾರಾಂಶ ತೋರಿಸುತ್ತದೆ. ಪೂರ್ಣ diff ಗಾಗಿ -p ಸೇರಿಸಿ.",
+          hi: "Stash में क्या है उसका summary दिखाता है। Full diff के लिए -p जोड़ें।"
+        },
+        examples: [
+          { code: "git stash show", note: { en: "Summary of latest stash", kn: "ಇತ್ತೀಚಿನ stash ನ ಸಾರಾಂಶ", hi: "Latest stash का summary" } },
+          { code: "git stash show -p", note: { en: "Full diff of the latest stash", kn: "ಇತ್ತೀಚಿನ stash ನ ಪೂರ್ಣ diff", hi: "Latest stash का full diff" } }
+        ]
+      },
+      {
+        cmd: "git stash drop",
+        syntax: "git stash drop [stash@{n}]",
+        desc: {
+          en: "Permanently deletes a specific stash from the list without applying it.",
+          kn: "ಅನ್ವಯಿಸದೆ ಪಟ್ಟಿಯಿಂದ ನಿರ್ದಿಷ್ಟ stash ಅನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸುತ್ತದೆ.",
+          hi: "Apply किए बिना list से specific stash को permanently delete करता है।"
+        },
+        examples: [
+          { code: "git stash drop", note: { en: "Delete the latest stash", kn: "ಇತ್ತೀಚಿನ stash ಅಳಿಸಿ", hi: "Latest stash delete करें" } },
+          { code: "git stash drop stash@{2}", note: { en: "Delete a specific stash", kn: "ನಿರ್ದಿಷ್ಟ stash ಅಳಿಸಿ", hi: "Specific stash delete करें" } }
+        ]
+      },
+      {
+        cmd: "git stash clear",
+        syntax: "git stash clear",
+        desc: {
+          en: "Removes ALL stashes permanently. Use with caution — this cannot be undone.",
+          kn: "ಎಲ್ಲಾ stashes ಅನ್ನು ಶಾಶ್ವತವಾಗಿ ತೆಗೆದುಹಾಕುತ್ತದೆ. ಎಚ್ಚರಿಕೆಯಿಂದ ಬಳಸಿ — ಇದನ್ನು ರದ್ದುಗೊಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.",
+          hi: "सभी stashes को permanently हटाता है। सावधानी से use करें — यह undo नहीं हो सकता।"
+        },
+        examples: [
+          { code: "git stash clear", note: { en: "⚠️ Deletes all stashes — no recovery", kn: "⚠️ ಎಲ್ಲಾ stashes ಅಳಿಸುತ್ತದೆ — ಮರಳಿ ಪಡೆಯಲಾಗುವುದಿಲ್ಲ", hi: "⚠️ सभी stashes delete करता है — recovery नहीं" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "remote",
+    icon: "🌐",
+    label: { en: "Remote Repositories", kn: "ರಿಮೋಟ್ ರೆಪೊಸಿಟರಿ", hi: "Remote Repositories" },
+    commands: [
+      {
+        cmd: "git remote",
+        syntax: "git remote [-v | add | remove | rename]",
+        desc: {
+          en: "Manages connections to remote repositories (like GitHub, GitLab, Bitbucket).",
+          kn: "ರಿಮೋಟ್ repositories (GitHub, GitLab, Bitbucket) ಗೆ ಸಂಪರ್ಕಗಳನ್ನು ನಿರ್ವಹಿಸುತ್ತದೆ.",
+          hi: "Remote repositories (GitHub, GitLab, Bitbucket) से connections manage करता है।"
+        },
+        examples: [
+          { code: "git remote", note: { en: "List remote names", kn: "Remote ಹೆಸರುಗಳ ಪಟ್ಟಿ", hi: "Remote names list करें" } },
+          { code: "git remote -v", note: { en: "List remotes with full URLs", kn: "ಪೂರ್ಣ URLs ಸಹಿತ remotes ಪಟ್ಟಿ", hi: "Full URLs के साथ remotes list करें" } },
+          { code: "git remote add origin https://github.com/user/repo.git", note: { en: "Link local repo to GitHub", kn: "Local repo ಅನ್ನು GitHub ಗೆ ಲಿಂಕ್ ಮಾಡಿ", hi: "Local repo को GitHub से link करें" } },
+          { code: "git remote remove origin", note: { en: "Remove a remote connection", kn: "Remote ಸಂಪರ್ಕ ತೆಗೆದುಹಾಕಿ", hi: "Remote connection हटाएं" } },
+          { code: "git remote rename origin upstream", note: { en: "Rename a remote", kn: "Remote ಮರುನಾಮಕರಣ ಮಾಡಿ", hi: "Remote का नाम बदलें" } },
+          { code: "git remote set-url origin <new-url>", note: { en: "Change a remote's URL", kn: "Remote ನ URL ಬದಲಾಯಿಸಿ", hi: "Remote का URL बदलें" } }
+        ]
+      },
+      {
+        cmd: "git fetch",
+        syntax: "git fetch [remote] [branch]",
+        desc: {
+          en: "Downloads changes from remote but does NOT merge them — safe to inspect first.",
+          kn: "Remote ನಿಂದ ಬದಲಾವಣೆಗಳನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡುತ್ತದೆ ಆದರೆ merge ಮಾಡುವುದಿಲ್ಲ — ಮೊದಲು ಪರಿಶೀಲಿಸಲು ಸುರಕ್ಷಿತ.",
+          hi: "Remote से changes download करता है लेकिन merge नहीं करता — पहले inspect करना safe है।"
+        },
+        examples: [
+          { code: "git fetch", note: { en: "Fetch from default remote", kn: "ಡಿಫಾಲ್ಟ್ remote ನಿಂದ fetch ಮಾಡಿ", hi: "Default remote से fetch करें" } },
+          { code: "git fetch origin", note: { en: "Fetch from origin specifically", kn: "ನಿರ್ದಿಷ್ಟವಾಗಿ origin ನಿಂದ fetch ಮಾಡಿ", hi: "Origin से specifically fetch करें" } },
+          { code: "git fetch --all", note: { en: "Fetch from all remotes", kn: "ಎಲ್ಲಾ remotes ನಿಂದ fetch ಮಾಡಿ", hi: "सभी remotes से fetch करें" } }
+        ]
+      },
+      {
+        cmd: "git pull",
+        syntax: "git pull [remote] [branch]",
+        desc: {
+          en: "Fetches remote changes AND immediately merges them into your current branch (fetch + merge in one).",
+          kn: "Remote ಬದಲಾವಣೆಗಳನ್ನು fetch ಮಾಡಿ ಮತ್ತು ತಕ್ಷಣ ಪ್ರಸ್ತುತ branch ಗೆ merge ಮಾಡುತ್ತದೆ (fetch + merge ಒಂದೇ ಬಾರಿ).",
+          hi: "Remote changes fetch करता है और तुरंत current branch में merge करता है (fetch + merge एक साथ)।"
+        },
+        examples: [
+          { code: "git pull", note: { en: "Pull from tracked remote branch", kn: "Tracked remote branch ನಿಂದ pull ಮಾಡಿ", hi: "Tracked remote branch से pull करें" } },
+          { code: "git pull origin main", note: { en: "Pull from origin's main branch", kn: "Origin ನ main branch ನಿಂದ pull ಮಾಡಿ", hi: "Origin के main branch से pull करें" } },
+          { code: "git pull --rebase", note: { en: "Pull using rebase instead of merge (cleaner history)", kn: "Merge ಬದಲಿಗೆ rebase ಬಳಸಿ pull ಮಾಡಿ (ಶುದ್ಧ ಇತಿಹಾಸ)", hi: "Merge की जगह rebase से pull करें (clean history)" } }
+        ]
+      },
+      {
+        cmd: "git push",
+        syntax: "git push [remote] [branch]",
+        desc: {
+          en: "Uploads your local commits to the remote repository, sharing your work with others.",
+          kn: "ನಿಮ್ಮ local commits ಅನ್ನು remote repository ಗೆ ಅಪ್‌ಲೋಡ್ ಮಾಡುತ್ತದೆ, ನಿಮ್ಮ ಕೆಲಸ ಇತರರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳುತ್ತದೆ.",
+          hi: "आपके local commits को remote repository पर upload करता है, आपका काम दूसरों के साथ share करता है।"
+        },
+        examples: [
+          { code: "git push", note: { en: "Push to default tracked branch", kn: "ಡಿಫಾಲ್ಟ್ tracked branch ಗೆ push ಮಾಡಿ", hi: "Default tracked branch पर push करें" } },
+          { code: "git push origin main", note: { en: "Push to specific remote branch", kn: "ನಿರ್ದಿಷ್ಟ remote branch ಗೆ push ಮಾಡಿ", hi: "Specific remote branch पर push करें" } },
+          { code: "git push -u origin feature-x", note: { en: "Push and set upstream tracking", kn: "Push ಮಾಡಿ ಮತ್ತು upstream tracking ಹೊಂದಿಸಿ", hi: "Push करें और upstream tracking set करें" } },
+          { code: "git push --force", note: { en: "⚠️ Force push (overwrites remote)", kn: "⚠️ Force push (remote ತಿದ್ದಿಬರೆಯುತ್ತದೆ)", hi: "⚠️ Force push (remote overwrite करता है)" } },
+          { code: "git push --force-with-lease", note: { en: "Safer force push — checks if remote has new commits first", kn: "ಸುರಕ್ಷಿತ force push — remote ಗೆ ಹೊಸ commits ಇದೆಯೇ ಎಂದು ಮೊದಲು ಪರಿಶೀಲಿಸುತ್ತದೆ", hi: "Safer force push — पहले check करता है कि remote पर नए commits हैं" } },
+          { code: "git push origin --delete feature-x", note: { en: "Delete a remote branch", kn: "Remote branch ಅಳಿಸಿ", hi: "Remote branch delete करें" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "logs",
+    icon: "📋",
+    label: { en: "Logs & History", kn: "ಲಾಗ್ ಮತ್ತು ಇತಿಹಾಸ", hi: "Logs और History" },
+    commands: [
+      {
+        cmd: "git log",
+        syntax: "git log [options]",
+        desc: {
+          en: "Shows the commit history of the current branch with details like hash, author, date, and message.",
+          kn: "ಹ್ಯಾಶ್, ಲೇಖಕ, ದಿನಾಂಕ ಮತ್ತು ಸಂದೇಶದಂತಹ ವಿವರಗಳೊಂದಿಗೆ ಪ್ರಸ್ತುತ branch ನ commit ಇತಿಹಾಸ ತೋರಿಸುತ್ತದೆ.",
+          hi: "Hash, author, date, और message जैसे details के साथ current branch का commit history दिखाता है।"
+        },
+        examples: [
+          { code: "git log", note: { en: "Full commit log", kn: "ಸಂಪೂರ್ಣ commit ಲಾಗ್", hi: "Full commit log" } },
+          { code: "git log --oneline", note: { en: "Compact one-line per commit", kn: "ಒಂದು ಸಾಲಿನಲ್ಲಿ compact ರೂಪ", hi: "Compact एक line प्रति commit" } },
+          { code: "git log --oneline --graph --all", note: { en: "Visual branch graph of all branches", kn: "ಎಲ್ಲಾ branches ನ ದೃಶ್ಯ graph", hi: "सभी branches का visual graph" } },
+          { code: "git log -5", note: { en: "Show only last 5 commits", kn: "ಕೇವಲ ಕೊನೆಯ 5 commits ತೋರಿಸಿ", hi: "केवल आखिरी 5 commits दिखाएं" } },
+          { code: 'git log --author="Raghottam"', note: { en: "Filter commits by author", kn: "Author ಮೂಲಕ commits ಫಿಲ್ಟರ್ ಮಾಡಿ", hi: "Author द्वारा commits filter करें" } },
+          { code: 'git log --since="2 weeks ago"', note: { en: "Show commits from last 2 weeks", kn: "ಕೊನೆಯ 2 ವಾರಗಳ commits ತೋರಿಸಿ", hi: "पिछले 2 हफ्तों के commits दिखाएं" } },
+          { code: "git log -p", note: { en: "Show commits with full diff", kn: "ಪೂರ್ಣ diff ಸಹಿತ commits ತೋರಿಸಿ", hi: "Full diff के साथ commits दिखाएं" } },
+          { code: 'git log --grep="fix"', note: { en: "Search commit messages for keyword", kn: "Keyword ಗಾಗಿ commit ಸಂದೇಶಗಳಲ್ಲಿ ಹುಡುಕಿ", hi: "Commit messages में keyword खोजें" } }
+        ]
+      },
+      {
+        cmd: "git show",
+        syntax: "git show <commit | tag>",
+        desc: {
+          en: "Displays detailed information about a specific commit including its diff.",
+          kn: "ನಿರ್ದಿಷ್ಟ commit ನ ಬಗ್ಗೆ ವಿವರವಾದ ಮಾಹಿತಿ ಮತ್ತು diff ತೋರಿಸುತ್ತದೆ.",
+          hi: "किसी specific commit की detailed information और उसका diff दिखाता है।"
+        },
+        examples: [
+          { code: "git show", note: { en: "Show details of the latest commit", kn: "ಇತ್ತೀಚಿನ commit ನ ವಿವರ ತೋರಿಸಿ", hi: "Latest commit की details दिखाएं" } },
+          { code: "git show abc1234", note: { en: "Show a specific commit by hash", kn: "Hash ಮೂಲಕ ನಿರ್ದಿಷ್ಟ commit ತೋರಿಸಿ", hi: "Hash से specific commit दिखाएं" } }
+        ]
+      },
+      {
+        cmd: "git blame",
+        syntax: "git blame <file>",
+        desc: {
+          en: "Shows who last modified each line of a file and in which commit — great for debugging.",
+          kn: "ಫೈಲ್‌ನ ಪ್ರತಿ ಸಾಲನ್ನು ಕೊನೆಯದಾಗಿ ಯಾರು ಮಾರ್ಪಡಿಸಿದರು ಮತ್ತು ಯಾವ commit ನಲ್ಲಿ ಎಂದು ತೋರಿಸುತ್ತದೆ — debugging ಗೆ ಉತ್ತಮ.",
+          hi: "दिखाता है कि file की प्रत्येक line को किसने और किस commit में modify किया — debugging के लिए बढ़िया।"
+        },
+        examples: [
+          { code: "git blame app.js", note: { en: "Annotate file with commit/author info", kn: "Commit/author ಮಾಹಿತಿಯೊಂದಿಗೆ ಫೈಲ್ annotate ಮಾಡಿ", hi: "Commit/author info के साथ file annotate करें" } },
+          { code: "git blame -L 10,20 app.js", note: { en: "Blame only lines 10-20", kn: "ಕೇವಲ ಸಾಲುಗಳು 10-20 blame ಮಾಡಿ", hi: "केवल lines 10-20 blame करें" } }
+        ]
+      },
+      {
+        cmd: "git shortlog",
+        syntax: "git shortlog [-s | -n | -e]",
+        desc: {
+          en: "Summarizes git log output grouped by author — useful for release notes.",
+          kn: "Author ಗೆ ಗುಂಪು ಮಾಡಿ git log ಔಟ್‌ಪುಟ್ ಸಾರಾಂಶ ಮಾಡುತ್ತದೆ — release notes ಗಾಗಿ ಉಪಯೋಗಿ.",
+          hi: "Git log output को author के अनुसार group करके summarize करता है — release notes के लिए useful।"
+        },
+        examples: [
+          { code: "git shortlog", note: { en: "Group commits by author", kn: "Commits ಅನ್ನು author ಮೂಲಕ ಗುಂಪು ಮಾಡಿ", hi: "Commits को author के अनुसार group करें" } },
+          { code: "git shortlog -sn", note: { en: "Count commits per author, sorted", kn: "ಪ್ರತಿ author ಗಾಗಿ commits ಎಣಿಸಿ, ವಿಂಗಡಿಸಿ", hi: "प्रति author commits गिनें, sorted" } }
+        ]
+      },
+      {
+        cmd: "git reflog",
+        syntax: "git reflog",
+        desc: {
+          en: "Shows a log of ALL HEAD movements — including resets and rebases. Lifesaver for recovering lost commits.",
+          kn: "ರೀಸೆಟ್‌ಗಳು ಮತ್ತು rebases ಸೇರಿದಂತೆ ಎಲ್ಲಾ HEAD ಚಲನೆಗಳ ಲಾಗ್ ತೋರಿಸುತ್ತದೆ. ಕಳೆದುಹೋದ commits ಮರಳಿ ಪಡೆಯಲು ಜೀವರಕ್ಷಕ.",
+          hi: "सभी HEAD movements का log दिखाता है — resets और rebases सहित। Lost commits recover करने का जीवनरक्षक।"
+        },
+        examples: [
+          { code: "git reflog", note: { en: "See full HEAD history", kn: "ಸಂಪೂರ್ಣ HEAD ಇತಿಹಾಸ ನೋಡಿ", hi: "Full HEAD history देखें" } },
+          { code: "git reflog --relative-date", note: { en: "Show with human-readable dates", kn: "Human-readable ದಿನಾಂಕಗಳೊಂದಿಗೆ ತೋರಿಸಿ", hi: "Human-readable dates के साथ दिखाएं" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "tags",
+    icon: "🏷️",
+    label: { en: "Tags", kn: "ಟ್ಯಾಗ್‌ಗಳು", hi: "Tags" },
+    commands: [
+      {
+        cmd: "git tag",
+        syntax: "git tag [name] [-a | -d] [commit]",
+        desc: {
+          en: "Creates bookmarks at specific commits — commonly used for release versions like v1.0.0.",
+          kn: "ನಿರ್ದಿಷ್ಟ commits ನಲ್ಲಿ ಬುಕ್‌ಮಾರ್ಕ್‌ಗಳನ್ನು ರಚಿಸುತ್ತದೆ — ಸಾಮಾನ್ಯವಾಗಿ v1.0.0 ನಂತಹ release versions ಗಾಗಿ ಬಳಸಲಾಗುತ್ತದೆ.",
+          hi: "Specific commits पर bookmarks बनाता है — आमतौर पर v1.0.0 जैसे release versions के लिए।"
+        },
+        examples: [
+          { code: "git tag", note: { en: "List all tags", kn: "ಎಲ್ಲಾ tags ಪಟ್ಟಿ ಮಾಡಿ", hi: "सभी tags list करें" } },
+          { code: "git tag v1.0.0", note: { en: "Create a lightweight tag", kn: "Lightweight tag ರಚಿಸಿ", hi: "Lightweight tag बनाएं" } },
+          { code: 'git tag -a v1.0.0 -m "Release version 1.0"', note: { en: "Annotated tag with message", kn: "ಸಂದೇಶದೊಂದಿಗೆ annotated tag", hi: "Message के साथ annotated tag" } },
+          { code: "git tag -d v1.0.0", note: { en: "Delete a local tag", kn: "Local tag ಅಳಿಸಿ", hi: "Local tag delete करें" } },
+          { code: "git push origin v1.0.0", note: { en: "Push a specific tag to remote", kn: "ನಿರ್ದಿಷ್ಟ tag ಅನ್ನು remote ಗೆ push ಮಾಡಿ", hi: "Specific tag को remote पर push करें" } },
+          { code: "git push origin --tags", note: { en: "Push all local tags to remote", kn: "ಎಲ್ಲಾ local tags ಅನ್ನು remote ಗೆ push ಮಾಡಿ", hi: "सभी local tags को remote पर push करें" } },
+          { code: "git push origin --delete v1.0.0", note: { en: "Delete a remote tag", kn: "Remote tag ಅಳಿಸಿ", hi: "Remote tag delete करें" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "undoing",
+    icon: "↩️",
+    label: { en: "Undoing Changes", kn: "ಬದಲಾವಣೆಗಳನ್ನು ರದ್ದುಗೊಳಿಸುವುದು", hi: "Changes Undo करना" },
+    commands: [
+      {
+        cmd: "git restore",
+        syntax: "git restore [--staged] <file>",
+        desc: {
+          en: "Restores working tree files. Use --staged to unstage files without losing changes.",
+          kn: "ವರ್ಕಿಂಗ್ ಟ್ರೀ ಫೈಲ್‌ಗಳನ್ನು ಮರುಸ್ಥಾಪಿಸುತ್ತದೆ. ಬದಲಾವಣೆಗಳನ್ನು ಕಳೆದುಕೊಳ್ಳದೆ files unstage ಮಾಡಲು --staged ಬಳಸಿ.",
+          hi: "Working tree files restore करता है। Changes खोए बिना files unstage करने के लिए --staged उपयोग करें।"
+        },
+        examples: [
+          { code: "git restore index.html", note: { en: "Discard local changes in file", kn: "ಫೈಲ್‌ನಲ್ಲಿ local ಬದಲಾವಣೆಗಳನ್ನು ತ್ಯಜಿಸಿ", hi: "File में local changes discard करें" } },
+          { code: "git restore --staged index.html", note: { en: "Unstage a file (keep changes)", kn: "ಫೈಲ್ unstage ಮಾಡಿ (ಬದಲಾವಣೆಗಳು ಉಳಿಸಿ)", hi: "File unstage करें (changes रखें)" } },
+          { code: "git restore .", note: { en: "Discard all unstaged local changes", kn: "ಎಲ್ಲಾ unstaged local ಬದಲಾವಣೆಗಳನ್ನು ತ್ಯಜಿಸಿ", hi: "सभी unstaged local changes discard करें" } }
+        ]
+      },
+      {
+        cmd: "git reset",
+        syntax: "git reset [--soft | --mixed | --hard] <commit>",
+        desc: {
+          en: "Moves the HEAD pointer back to an earlier commit. --soft keeps changes staged, --mixed unstages them, --hard deletes them.",
+          kn: "HEAD ಪಾಯಿಂಟರ್ ಅನ್ನು ಮೊದಲಿನ commit ಗೆ ಹಿಂತಿರುಗಿಸುತ್ತದೆ. --soft staged ಉಳಿಸುತ್ತದೆ, --mixed unstage ಮಾಡುತ್ತದೆ, --hard ಅಳಿಸುತ್ತದೆ.",
+          hi: "HEAD pointer को पिछले commit पर ले जाता है। --soft staged रखता है, --mixed unstage करता है, --hard delete करता है।"
+        },
+        examples: [
+          { code: "git reset --soft HEAD~1", note: { en: "Undo last commit, keep changes staged", kn: "ಕೊನೆಯ commit ರದ್ದು, staged ಬದಲಾವಣೆಗಳು ಉಳಿಸಿ", hi: "Last commit undo करें, changes staged रखें" } },
+          { code: "git reset HEAD~1", note: { en: "Undo last commit, unstage changes", kn: "ಕೊನೆಯ commit ರದ್ದು, changes unstage ಮಾಡಿ", hi: "Last commit undo करें, changes unstage करें" } },
+          { code: "git reset --hard HEAD~1", note: { en: "⚠️ Undo last commit AND delete changes", kn: "⚠️ ಕೊನೆಯ commit ರದ್ದು ಮತ್ತು ಬದಲಾವಣೆಗಳು ಅಳಿಸಿ", hi: "⚠️ Last commit undo करें और changes delete करें" } },
+          { code: "git reset --hard origin/main", note: { en: "Reset local branch to match remote", kn: "Remote ಹೊಂದಿಸಲು local branch reset ಮಾಡಿ", hi: "Remote से match करने के लिए local branch reset करें" } }
+        ]
+      },
+      {
+        cmd: "git revert",
+        syntax: "git revert <commit-hash>",
+        desc: {
+          en: "Creates a new commit that undoes a previous commit's changes — safe for shared branches because it doesn't rewrite history.",
+          kn: "ಹಿಂದಿನ commit ನ ಬದಲಾವಣೆಗಳನ್ನು ರದ್ದುಗೊಳಿಸುವ ಹೊಸ commit ರಚಿಸುತ್ತದೆ — ಇತಿಹಾಸ ಮರುಬರೆಯುವುದಿಲ್ಲ ಆದ್ದರಿಂದ shared branches ಗೆ ಸುರಕ್ಷಿತ.",
+          hi: "एक नया commit बनाता है जो पिछले commit के changes को undo करता है — shared branches के लिए safe क्योंकि history rewrite नहीं होती।"
+        },
+        examples: [
+          { code: "git revert abc1234", note: { en: "Safely undo a past commit", kn: "ಹಿಂದಿನ commit ಸುರಕ್ಷಿತವಾಗಿ ರದ್ದು ಮಾಡಿ", hi: "पिछले commit को safely undo करें" } },
+          { code: "git revert HEAD", note: { en: "Revert the latest commit", kn: "ಇತ್ತೀಚಿನ commit ರಿವರ್ಟ್ ಮಾಡಿ", hi: "Latest commit revert करें" } },
+          { code: "git revert --no-commit abc1234", note: { en: "Stage the revert without committing yet", kn: "Commit ಮಾಡದೆ revert stage ಮಾಡಿ", hi: "Commit किए बिना revert stage करें" } }
+        ]
+      },
+      {
+        cmd: "git clean",
+        syntax: "git clean [-f | -fd | -n]",
+        desc: {
+          en: "Removes untracked files and directories from your working tree. Use -n for a dry run first.",
+          kn: "ವರ್ಕಿಂಗ್ ಟ್ರೀಯಿಂದ untracked ಫೈಲ್‌ಗಳು ಮತ್ತು ಡೈರೆಕ್ಟರಿಗಳನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ. ಮೊದಲು dry run ಗಾಗಿ -n ಬಳಸಿ.",
+          hi: "Working tree से untracked files और directories हटाता है। पहले dry run के लिए -n उपयोग करें।"
+        },
+        examples: [
+          { code: "git clean -n", note: { en: "Preview what would be deleted", kn: "ಏನು ಅಳಿಸಲಾಗುತ್ತದೆ ಎಂದು ಮುನ್ನೋಟ", hi: "Preview करें क्या delete होगा" } },
+          { code: "git clean -f", note: { en: "⚠️ Delete untracked files", kn: "⚠️ Untracked ಫೈಲ್‌ಗಳನ್ನು ಅಳಿಸಿ", hi: "⚠️ Untracked files delete करें" } },
+          { code: "git clean -fd", note: { en: "⚠️ Delete untracked files AND directories", kn: "⚠️ Untracked ಫೈಲ್‌ಗಳು ಮತ್ತು ಡೈರೆಕ್ಟರಿಗಳನ್ನು ಅಳಿಸಿ", hi: "⚠️ Untracked files और directories delete करें" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "advanced",
+    icon: "🔧",
+    label: { en: "Advanced Commands", kn: "ಸುಧಾರಿತ ಆದೇಶಗಳು", hi: "Advanced Commands" },
+    commands: [
+      {
+        cmd: "git bisect",
+        syntax: "git bisect [start | good | bad | reset]",
+        desc: {
+          en: "Binary search through commits to find which commit introduced a bug. Very powerful for debugging.",
+          kn: "ಯಾವ commit ಬಗ್ ಅನ್ನು ಪರಿಚಯಿಸಿತು ಎಂದು ಕಂಡುಹಿಡಿಯಲು commits ನ ಮೂಲಕ binary search. Debugging ಗೆ ತುಂಬಾ ಶಕ್ತಿಶಾಲಿ.",
+          hi: "Commits के through binary search करके पता करता है कि कौन सा commit bug लाया। Debugging के लिए बहुत powerful।"
+        },
+        examples: [
+          { code: "git bisect start", note: { en: "Start the bisect session", kn: "Bisect session ಪ್ರಾರಂಭಿಸಿ", hi: "Bisect session शुरू करें" } },
+          { code: "git bisect bad", note: { en: "Mark current commit as broken", kn: "ಪ್ರಸ್ತುತ commit ಅನ್ನು broken ಎಂದು ಗುರುತಿಸಿ", hi: "Current commit को broken mark करें" } },
+          { code: "git bisect good v1.0", note: { en: "Mark known-good commit or tag", kn: "ಖಚಿತ good commit ಅಥವಾ tag ಗುರುತಿಸಿ", hi: "Known-good commit या tag mark करें" } },
+          { code: "git bisect reset", note: { en: "End bisect and return to HEAD", kn: "Bisect ಮುಕ್ತಾಯ ಮಾಡಿ ಮತ್ತು HEAD ಗೆ ಮರಳಿ", hi: "Bisect खत्म करें और HEAD पर लौटें" } }
+        ]
+      },
+      {
+        cmd: "git submodule",
+        syntax: "git submodule [add | init | update | status]",
+        desc: {
+          en: "Manages external repositories embedded inside your repo — like dependencies as Git repos.",
+          kn: "ನಿಮ್ಮ repo ನಲ್ಲಿ ಎಂಬೆಡ್ ಮಾಡಿದ ಬಾಹ್ಯ repositories ಅನ್ನು ನಿರ್ವಹಿಸುತ್ತದೆ — Git repos ಆಗಿ dependencies ನಂತೆ.",
+          hi: "आपके repo में embedded बाहरी repositories manage करता है — Git repos के रूप में dependencies।"
+        },
+        examples: [
+          { code: "git submodule add https://github.com/user/lib.git libs/lib", note: { en: "Add a submodule", kn: "Submodule ಸೇರಿಸಿ", hi: "Submodule जोड़ें" } },
+          { code: "git submodule init", note: { en: "Initialize submodules after clone", kn: "Clone ನಂತರ submodules ಪ್ರಾರಂಭಿಸಿ", hi: "Clone के बाद submodules initialize करें" } },
+          { code: "git submodule update --init --recursive", note: { en: "Init and update all nested submodules", kn: "ಎಲ್ಲಾ nested submodules init ಮತ್ತು update ಮಾಡಿ", hi: "सभी nested submodules init और update करें" } },
+          { code: "git submodule status", note: { en: "Check submodule states", kn: "Submodule ಸ್ಥಿತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ", hi: "Submodule states check करें" } }
+        ]
+      },
+      {
+        cmd: "git worktree",
+        syntax: "git worktree [add | list | remove]",
+        desc: {
+          en: "Checks out multiple branches simultaneously in separate folders — work on two branches at once.",
+          kn: "ಪ್ರತ್ಯೇಕ ಫೋಲ್ಡರ್‌ಗಳಲ್ಲಿ ಒಂದೇ ಸಮಯದಲ್ಲಿ ಬಹು branches checkout ಮಾಡುತ್ತದೆ — ಒಂದೇ ಸಮಯದಲ್ಲಿ ಎರಡು branches ನಲ್ಲಿ ಕೆಲಸ ಮಾಡಿ.",
+          hi: "अलग-अलग folders में एक साथ multiple branches checkout करता है — एक समय में दो branches पर काम करें।"
+        },
+        examples: [
+          { code: "git worktree add ../hotfix hotfix-branch", note: { en: "Create a new worktree for a branch", kn: "Branch ಗಾಗಿ ಹೊಸ worktree ರಚಿಸಿ", hi: "Branch के लिए नया worktree बनाएं" } },
+          { code: "git worktree list", note: { en: "List all active worktrees", kn: "ಎಲ್ಲಾ active worktrees ಪಟ್ಟಿ ಮಾಡಿ", hi: "सभी active worktrees list करें" } },
+          { code: "git worktree remove ../hotfix", note: { en: "Remove a worktree", kn: "Worktree ತೆಗೆದುಹಾಕಿ", hi: "Worktree हटाएं" } }
+        ]
+      },
+      {
+        cmd: "git archive",
+        syntax: "git archive --format=zip HEAD > output.zip",
+        desc: {
+          en: "Creates a zip or tar archive of a specific commit or branch without .git history.",
+          kn: ".git ಇತಿಹಾಸವಿಲ್ಲದೆ ನಿರ್ದಿಷ್ಟ commit ಅಥವಾ branch ನ zip ಅಥವಾ tar ಆರ್ಕೈವ್ ರಚಿಸುತ್ತದೆ.",
+          hi: ".git history के बिना किसी specific commit या branch का zip या tar archive बनाता है।"
+        },
+        examples: [
+          { code: "git archive --format=zip HEAD > project.zip", note: { en: "Zip current HEAD state", kn: "ಪ್ರಸ್ತುತ HEAD ಸ್ಥಿತಿಯನ್ನು Zip ಮಾಡಿ", hi: "Current HEAD state को zip करें" } },
+          { code: "git archive --format=tar.gz v1.0 > release.tar.gz", note: { en: "Archive a specific tag/release", kn: "ನಿರ್ದಿಷ್ಟ tag/release ಆರ್ಕೈವ್ ಮಾಡಿ", hi: "Specific tag/release archive करें" } }
+        ]
+      },
+      {
+        cmd: "git gc",
+        syntax: "git gc [--aggressive | --prune]",
+        desc: {
+          en: "Runs garbage collection to optimize and compress your repository's data.",
+          kn: "Repository ನ ಡೇಟಾ ಆಪ್ಟಿಮೈಜ್ ಮತ್ತು ಕಂಪ್ರೆಸ್ ಮಾಡಲು garbage collection ರನ್ ಮಾಡುತ್ತದೆ.",
+          hi: "Repository के data को optimize और compress करने के लिए garbage collection चलाता है।"
+        },
+        examples: [
+          { code: "git gc", note: { en: "Run standard garbage collection", kn: "ಮಾನಕ garbage collection ರನ್ ಮಾಡಿ", hi: "Standard garbage collection चलाएं" } },
+          { code: "git gc --aggressive", note: { en: "Thorough but slower optimization", kn: "ಸಂಪೂರ್ಣ ಆದರೆ ನಿಧಾನ optimization", hi: "पूरी पर slow optimization" } }
+        ]
+      },
+      {
+        cmd: "git fsck",
+        syntax: "git fsck [--lost-found]",
+        desc: {
+          en: "Checks the integrity of your Git repository — finds dangling or lost objects.",
+          kn: "Git repository ನ ಸಮಗ್ರತೆ ಪರಿಶೀಲಿಸುತ್ತದೆ — dangling ಅಥವಾ ಕಳೆದುಹೋದ objects ಕಂಡುಹಿಡಿಯುತ್ತದೆ.",
+          hi: "Git repository की integrity check करता है — dangling या lost objects ढूंढता है।"
+        },
+        examples: [
+          { code: "git fsck", note: { en: "Check repo integrity", kn: "Repo ಸಮಗ್ರತೆ ಪರಿಶೀಲಿಸಿ", hi: "Repo integrity check करें" } },
+          { code: "git fsck --lost-found", note: { en: "Find and recover lost objects", kn: "ಕಳೆದುಹೋದ objects ಕಂಡುಹಿಡಿಯಿರಿ ಮತ್ತು ಮರಳಿ ಪಡೆಯಿರಿ", hi: "Lost objects ढूंढें और recover करें" } }
+        ]
+      },
+      {
+        cmd: "git grep",
+        syntax: "git grep <pattern> [branch]",
+        desc: {
+          en: "Search through all tracked files in the repository for a string or pattern.",
+          kn: "ಸ್ಟ್ರಿಂಗ್ ಅಥವಾ pattern ಗಾಗಿ repository ನ ಎಲ್ಲಾ tracked ಫೈಲ್‌ಗಳಲ್ಲಿ ಹುಡುಕಿ.",
+          hi: "Repository की सभी tracked files में string या pattern खोजें।"
+        },
+        examples: [
+          { code: 'git grep "TODO"', note: { en: "Find all TODOs in the codebase", kn: "Codebase ನಲ್ಲಿ ಎಲ್ಲಾ TODOs ಕಂಡುಹಿಡಿಯಿರಿ", hi: "Codebase में सभी TODOs खोजें" } },
+          { code: 'git grep "useState" main', note: { en: "Search in the main branch", kn: "Main branch ನಲ್ಲಿ ಹುಡುಕಿ", hi: "Main branch में खोजें" } }
+        ]
+      },
+      {
+        cmd: "git format-patch",
+        syntax: "git format-patch <since>..<until>",
+        desc: {
+          en: "Creates patch files from commits — useful for sharing changes via email or manual application.",
+          kn: "Commits ನಿಂದ patch ಫೈಲ್‌ಗಳನ್ನು ರಚಿಸುತ್ತದೆ — ಇಮೇಲ್ ಮೂಲಕ ಅಥವಾ ಕೈಯಿಂದ ಬದಲಾವಣೆಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಉಪಯೋಗಿ.",
+          hi: "Commits से patch files बनाता है — email या manual application के जरिए changes share करने के लिए useful।"
+        },
+        examples: [
+          { code: "git format-patch -1 HEAD", note: { en: "Create patch for last commit", kn: "ಕೊನೆಯ commit ಗಾಗಿ patch ರಚಿಸಿ", hi: "Last commit के लिए patch बनाएं" } },
+          { code: "git apply my-fix.patch", note: { en: "Apply a patch file", kn: "Patch ಫೈಲ್ ಅನ್ವಯಿಸಿ", hi: "Patch file apply करें" } }
+        ]
+      },
+      {
+        cmd: "git notes",
+        syntax: "git notes [add | list | show | remove]",
+        desc: {
+          en: "Attaches extra notes to commits without modifying the commit itself.",
+          kn: "Commit ಅನ್ನು ಮಾರ್ಪಡಿಸದೆ commits ಗೆ ಹೆಚ್ಚುವರಿ notes ಲಗತ್ತಿಸುತ್ತದೆ.",
+          hi: "Commit को modify किए बिना commits पर extra notes जोड़ता है।"
+        },
+        examples: [
+          { code: 'git notes add -m "Reviewed by team"', note: { en: "Add a note to HEAD commit", kn: "HEAD commit ಗೆ note ಸೇರಿಸಿ", hi: "HEAD commit पर note जोड़ें" } },
+          { code: "git notes show", note: { en: "Show notes for HEAD", kn: "HEAD ಗಾಗಿ notes ತೋರಿಸಿ", hi: "HEAD के notes दिखाएं" } }
+        ]
+      }
+    ]
+  },
+  {
+    id: "gitignore",
+    icon: "🚫",
+    label: { en: ".gitignore & Files", kn: ".gitignore ಮತ್ತು ಫೈಲ್‌ಗಳು", hi: ".gitignore और Files" },
+    commands: [
+      {
+        cmd: ".gitignore",
+        syntax: "# patterns in .gitignore file",
+        desc: {
+          en: "A special file that tells Git which files/folders to never track. Create it at the root of your project.",
+          kn: "Git ಯಾವ ಫೈಲ್‌ಗಳು/ಫೋಲ್ಡರ್‌ಗಳನ್ನು ಎಂದಿಗೂ track ಮಾಡಬಾರದು ಎಂದು ಹೇಳುವ ವಿಶೇಷ ಫೈಲ್. ನಿಮ್ಮ ಪ್ರಾಜೆಕ್ಟ್ ರೂಟ್‌ನಲ್ಲಿ ರಚಿಸಿ.",
+          hi: "एक special file जो Git को बताती है कि कौन सी files/folders कभी track न करें। इसे अपने project root में बनाएं।"
+        },
+        examples: [
+          { code: "node_modules/", note: { en: "Ignore entire node_modules folder", kn: "ಸಂಪೂರ್ಣ node_modules ಫೋಲ್ಡರ್ ನಿರ್ಲಕ್ಷಿಸಿ", hi: "पूरा node_modules folder ignore करें" } },
+          { code: "*.env", note: { en: "Ignore all .env files", kn: "ಎಲ್ಲಾ .env ಫೈಲ್‌ಗಳನ್ನು ನಿರ್ಲಕ್ಷಿಸಿ", hi: "सभी .env files ignore करें" } },
+          { code: "dist/", note: { en: "Ignore build output folder", kn: "Build output ಫೋಲ್ಡರ್ ನಿರ್ಲಕ್ಷಿಸಿ", hi: "Build output folder ignore करें" } },
+          { code: "**/*.log", note: { en: "Ignore all .log files anywhere", kn: "ಎಲ್ಲೆಡೆ .log ಫೈಲ್‌ಗಳನ್ನು ನಿರ್ಲಕ್ಷಿಸಿ", hi: "कहीं भी सभी .log files ignore करें" } }
+        ]
+      },
+      {
+        cmd: "git check-ignore",
+        syntax: "git check-ignore -v <file>",
+        desc: {
+          en: "Tells you WHY a file is being ignored — which .gitignore rule is matching.",
+          kn: "ಫೈಲ್ ಏಕೆ ನಿರ್ಲಕ್ಷಿಸಲ್ಪಡುತ್ತಿದೆ — ಯಾವ .gitignore ನಿಯಮ ಹೊಂದಿಕೆಯಾಗುತ್ತಿದೆ ಎಂದು ತಿಳಿಸುತ್ತದೆ.",
+          hi: "बताता है कि file क्यों ignore हो रही है — कौन सा .gitignore rule match हो रहा है।"
+        },
+        examples: [
+          { code: "git check-ignore -v .env", note: { en: "See which rule ignores .env", kn: ".env ಅನ್ನು ಯಾವ ನಿಯಮ ನಿರ್ಲಕ್ಷಿಸುತ್ತದೆ ಎಂದು ನೋಡಿ", hi: "देखें कौन सा rule .env ignore करता है" } }
+        ]
+      }
+    ]
+  }
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentLang = 'en';
+let isDark = false;
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function copyToClipboard(code, btn) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = UI[currentLang].copied;
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = UI[currentLang].copy;
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = categories.map(cat => `
+    <a href="#${cat.id}" class="sidebar-link flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm">
+      <span>${cat.icon}</span>
+      <span>${cat.label[currentLang]}</span>
+      <span class="ml-auto text-xs opacity-50">${cat.commands.length}</span>
+    </a>
+  `).join('');
+}
+
+function renderSections(filter = '') {
+  const container = document.getElementById('commandSections');
+  const lf = filter.toLowerCase();
+
+  let html = '';
+  categories.forEach(cat => {
+    const filteredCmds = cat.commands.filter(c => {
+      if (!lf) return true;
+      return c.cmd.toLowerCase().includes(lf) ||
+             c.desc[currentLang].toLowerCase().includes(lf) ||
+             c.syntax.toLowerCase().includes(lf) ||
+             c.examples.some(e => e.code.toLowerCase().includes(lf));
+    });
+    if (filteredCmds.length === 0) return;
+
+    html += `
+    <section id="${cat.id}" class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-2xl">${cat.icon}</span>
+        <h2 class="text-xl font-bold section-title pb-1 pr-4">${cat.label[currentLang]}</h2>
+        <span class="category-badge px-2 py-0.5 rounded-full mono">${filteredCmds.length} ${UI[currentLang].commands}</span>
+      </div>
+      <div class="space-y-5">
+        ${filteredCmds.map(cmd => renderCommandCard(cmd)).join('')}
+      </div>
+    </section>`;
+  });
+
+  if (!html) {
+    html = `<div class="text-center py-16 text-muted">
+      <div class="text-5xl mb-4">🔍</div>
+      <p class="text-lg font-semibold">No commands found</p>
+      <p class="text-sm mt-1">Try a different search term</p>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+  container.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => copyToClipboard(btn.dataset.code, btn));
+  });
+}
+
+function renderCommandCard(cmd) {
+  const desc = cmd.desc[currentLang];
+  const ui = UI[currentLang];
+
+  const examplesHtml = cmd.examples.map(ex => `
+    <div class="mt-3">
+      <div class="code-block rounded-lg p-3 flex items-start justify-between gap-2">
+        <code class="mono text-sm break-all flex-1" style="color:var(--accent)">${escapeHtml(ex.code)}</code>
+        <button class="copy-btn flex-shrink-0 mono text-xs px-2 py-1 rounded" data-code="${escapeHtml(ex.code)}">${ui.copy}</button>
+      </div>
+      ${ex.note ? `<p class="text-xs text-muted mt-1 pl-1">${ex.note[currentLang]}</p>` : ''}
+    </div>
+  `).join('');
+
+  return `
+  <div class="cmd-card rounded-xl p-5">
+    <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <code class="mono font-semibold text-base px-2 py-0.5 rounded" style="background:var(--tag-bg);color:var(--tag-text)">${escapeHtml(cmd.cmd)}</code>
+      </div>
+    </div>
+    <p class="text-sm mb-3" style="color:var(--text2)">${desc}</p>
+    <div class="pill rounded-lg px-3 py-2 mb-3">
+      <span class="text-xs font-semibold text-muted uppercase tracking-wider">${ui.syntax}</span>
+      <code class="mono text-sm block mt-1 break-all" style="color:var(--accent2)">${escapeHtml(cmd.syntax)}</code>
+    </div>
+    <div class="text-xs font-semibold text-muted uppercase tracking-wider mb-1">${ui.example}s</div>
+    ${examplesHtml}
+  </div>`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateUI() {
+  document.getElementById('siteTitle').textContent = UI[currentLang].title;
+  document.getElementById('siteSubtitle').textContent = UI[currentLang].subtitle;
+  document.getElementById('searchBox').placeholder = UI[currentLang].search;
+  renderSidebar();
+  renderSections(document.getElementById('searchBox').value);
+}
+
+// ─── EVENTS ───────────────────────────────────────────────────────────────────
+document.getElementById('langSelect').addEventListener('change', e => {
+  currentLang = e.target.value;
+  updateUI();
+});
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  isDark = !isDark;
+  document.documentElement.classList.toggle('dark', isDark);
+  document.getElementById('themeToggle').textContent = isDark ? '🌙' : '☀️';
+});
+
+let searchTimeout;
+document.getElementById('searchBox').addEventListener('input', e => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => renderSections(e.target.value), 200);
+});
+
+// Highlight active sidebar link on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.sidebar-link[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+updateUI();
+setTimeout(() => {
+  document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+}, 100);
+</script>
+</body>
+</html>
